@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import ro.fortech.internship.vinylshop.common.exception.AuthenticationException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.user.converter.DtoConverter;
+import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
+import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
@@ -33,5 +36,12 @@ public class UserService {
             log.error("Email already exist", e);
             throw new InvalidException("Email already exist");
         }
+    }
+
+    public AuthenticationTokenDTO userLogin(LoginUserDto loginUserDTO) {
+        log.info("Login requested for user {}", loginUserDTO.getEmail());
+        User user = userRepository.findByEmailAndPassword(loginUserDTO.getEmail(), loginUserDTO.getPassword())
+                .orElseThrow(() -> new AuthenticationException("Invalid email or password!"));
+        return new AuthenticationTokenDTO("tokenValue");
     }
 }
