@@ -1,11 +1,16 @@
 package ro.fortech.internship.vinylshop.user.controller;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ro.fortech.internship.vinylshop.BaseTest;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
+import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
+import ro.fortech.internship.vinylshop.user.model.User;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -82,5 +87,16 @@ public class UserControllerTest extends BaseTest {
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }
 
+    @Test
+    public void userShouldLoginTest() {
+        User user = userSetup.createValidUser();
+        LoginUserDto loginUserDto = new LoginUserDto(user.getEmail(), user.getPassword());
+
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(loginUserDto), String.class);
+
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertEquals("{\"token\":\"tokenValue\"}", response.getBody());
+    }
 
 }

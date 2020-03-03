@@ -29,6 +29,11 @@ public class UserSetup {
                 "SecretPass1583!`");
     }
 
+    public User createValidUser(){
+        userService.create(createValidUserDto());
+        return userRepository.findByEmail("john.pierce@gmail.com");
+    }
+
     public void createAndSaveUser() {
         User user = User.builder().email("john.pierce@gmail.com")
                 .firstName("John").lastName("Pierce").password("SecretPass1583!`").build();
@@ -98,4 +103,6 @@ public class UserSetup {
                 "john.pierce@gmail.com", "SecretPass1583!`");
         userService.create(validateUserDto);
     }
+
+
 }
