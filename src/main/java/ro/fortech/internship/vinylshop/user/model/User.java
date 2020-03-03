@@ -49,9 +49,9 @@ public class User {
     @NotBlank
     private String password;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id")
-    private Cart carts = new Cart();
+    private Cart cart;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
