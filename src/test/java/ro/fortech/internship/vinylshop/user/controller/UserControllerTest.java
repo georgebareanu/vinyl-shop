@@ -99,4 +99,64 @@ public class UserControllerTest extends BaseTest {
         Assert.assertEquals("{\"token\":\"tokenValue\"}", response.getBody());
     }
 
+    @Test
+    public void userLoginWithInvalidEmailTest() {
+        User user = userSetup.createValidUser();
+        LoginUserDto dto = new LoginUserDto("wrong@email.com", user.getPassword());
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithInvalidEmailInvalidPasswordTest() {
+        LoginUserDto dto = new LoginUserDto("wrong@email.com", "wrongPassword");
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithValidEmailAndInvalidPasswordTest() {
+        User user = userSetup.createValidUser();
+        LoginUserDto dto = new LoginUserDto(user.getEmail(), "wrongPassword");
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithNullEmailAndNullPasswordTest() {
+        LoginUserDto dto = new LoginUserDto(null, null);
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithEmailAndNullPasswordTest() {
+        User user = userSetup.createValidUser();
+        LoginUserDto dto = new LoginUserDto(user.getEmail(), null);
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithEmptyEmailAndEmptyPasswordTest() {
+        LoginUserDto dto = new LoginUserDto("", "");
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void userLoginWithEmailAndEmptyPasswordTest() {
+        User user = userSetup.createValidUser();
+        LoginUserDto dto = new LoginUserDto(user.getEmail(), "");
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
+                HttpMethod.POST, new HttpEntity<>(dto), String.class);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
 }
