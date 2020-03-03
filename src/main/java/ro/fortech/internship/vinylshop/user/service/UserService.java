@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
+import ro.fortech.internship.vinylshop.user.converter.DtoConverter;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
-import ro.fortech.internship.vinylshop.user.dto.DtoConverter;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 

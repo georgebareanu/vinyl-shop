@@ -1,4 +1,4 @@
-package ro.fortech.internship.vinylshop.user.dto;
+package ro.fortech.internship.vinylshop.user.converter;
 
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
+import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 @Component
