@@ -1,7 +1,10 @@
 package ro.fortech.internship.vinylshop.common.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class CommonExceptionHandler {
@@ -13,10 +16,17 @@ public class CommonExceptionHandler {
         return ex.getMessage();
     }
 
-    @ExceptionHandler(value = AuthenticationException.class)
+    @ExceptionHandler(value = InvalidPasswordOrEmailException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected String handler(AuthenticationException ex) {
+    protected String handler(InvalidPasswordOrEmailException ex) {
+        return ex.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    String userNotFound(UserNotFoundException ex) {
         return ex.getMessage();
     }
 }

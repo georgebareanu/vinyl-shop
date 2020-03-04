@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ro.fortech.internship.vinylshop.BaseTest;
-import ro.fortech.internship.vinylshop.common.exception.AuthenticationException;
+import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 
 import static org.junit.Assert.assertEquals;
@@ -98,57 +98,55 @@ public class UserServiceTest extends BaseTest {
 
     @Test
     public void userLoginWithInvalidEmailAndValidPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithInvalidEmailAndValidPassword();
     }
 
     @Test
     public void userLoginWithInvalidEmailAndInvalidPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithInvalidEmailAndInvalidPassword();
     }
 
     @Test
     public void userLoginWithValidEmailAndInvalidPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithValidEmailAndInvalidPassword();
     }
 
     @Test
     public void userLoginWithNullEmailAndPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithNullEmailAndPassword();
     }
 
     @Test
     public void userLoginWithNullEmailAndNullPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithNullEmailAndNullPassword();
     }
 
     @Test
     public void userLoginWithEmailAndNullPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmailAndNullPassword();
     }
 
     @Test
     public void userLoginWithEmptyEmailAndPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmptyEmailAndPassword();
     }
 
     @Test
     public void userLoginWithEmptyEmailAndEmptyPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmptyEmailAndEmptyPassword();
     }
 
     @Test
     public void userLoginWithEmailAndEmptyPasswordTest() {
-        expectedException.expect(AuthenticationException.class);
+        expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmailAndEmptyPassword();
     }
-
-
 }
