@@ -18,7 +18,7 @@ public class UserServiceTest extends BaseTest {
 
     @After
     public void tearDown() {
-        userSetup.deleteDatabase();
+        userSetup.deleteUsersDatabase();
     }
 
     @Test

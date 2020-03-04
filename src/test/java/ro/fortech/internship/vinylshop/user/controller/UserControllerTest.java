@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -26,7 +25,7 @@ public class UserControllerTest extends BaseTest {
 
     @After
     public void tearDown() {
-        userSetup.deleteDatabase();
+        userSetup.deleteUsersDatabase();
     }
 
     @Test

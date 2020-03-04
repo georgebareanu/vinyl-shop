@@ -18,7 +18,7 @@ public class UserSetup {
     @Autowired
     private UserService userService;
 
-    public void deleteDatabase() {
+    public void deleteUsersDatabase() {
         userRepository.deleteAll();
     }
 
