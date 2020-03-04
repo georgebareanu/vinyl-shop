@@ -24,9 +24,9 @@ public class CommonExceptionHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    String userNotFound(UserNotFoundException ex) {
+    String userNotFound(ResourceNotFoundException ex) {
         return ex.getMessage();
     }
 }
