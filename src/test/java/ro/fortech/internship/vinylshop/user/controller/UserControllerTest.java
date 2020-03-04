@@ -9,11 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ro.fortech.internship.vinylshop.BaseTest;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
+import ro.fortech.internship.vinylshop.user.dto.DeleteUserDto;
 import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -157,6 +161,35 @@ public class UserControllerTest extends BaseTest {
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
                 HttpMethod.POST, new HttpEntity<>(dto), String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteUserTest() {
+        User user = userSetup.createValidUser();
+        DeleteUserDto deleteUserDto = new DeleteUserDto(user.getEmail(), user.getPassword());
+        UUID id = user.getId();
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/{id}"),
+                HttpMethod.DELETE, new HttpEntity<>(deleteUserDto), String.class, id);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteUserBadCredentialsTest(){
+        User user = userSetup.createValidUser();
+        DeleteUserDto deleteUserDto = new DeleteUserDto("somethingRandom@gmail.com", user.getPassword());
+        UUID id = user.getId();
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/{id}"),
+                HttpMethod.DELETE, new HttpEntity<>(deleteUserDto), String.class, id);
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteUserWithWrongIdTest(){
+        User user = userSetup.createValidUser();
+        DeleteUserDto deleteUserDto = new DeleteUserDto(user.getEmail(), user.getPassword());
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/{id}"),
+                HttpMethod.DELETE, new HttpEntity<>(deleteUserDto), String.class, UUID.randomUUID());
+        Assert.assertEquals(BAD_REQUEST, response.getStatusCode());
     }
 
 }

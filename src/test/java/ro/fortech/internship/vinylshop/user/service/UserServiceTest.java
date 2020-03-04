@@ -149,6 +149,4 @@ public class UserServiceTest extends BaseTest {
         expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmailAndEmptyPassword();
     }
-
-
 }
