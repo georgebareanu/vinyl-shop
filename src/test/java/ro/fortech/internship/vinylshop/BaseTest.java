@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
+import ro.fortech.internship.vinylshop.cart.setup.CartSetupTest;
 import ro.fortech.internship.vinylshop.user.setup.UserSetup;
 
 @RunWith(SpringRunner.class)
@@ -16,6 +17,9 @@ public abstract class BaseTest {
 
     @Autowired
     protected UserSetup userSetup = new UserSetup();
+
+    @Autowired
+    protected CartSetupTest cartSetupTest = new CartSetupTest();
 
     @LocalServerPort
     private int port;

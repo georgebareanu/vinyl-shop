@@ -6,7 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
-import ro.fortech.internship.vinylshop.common.exception.UserNotFoundException;
+import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.user.converter.DtoConverter;
 import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
@@ -44,7 +44,7 @@ public class UserService {
 
     public void deleteUser(UUID id, DeleteUserDto deleteUserDto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Email address or/and password are invalid"));
+                .orElseThrow(() -> new ResourceNotFoundException("Email address or/and password are invalid"));
         if (user.getPassword().equals(deleteUserDto.getPassword()) && user.getEmail().equals(deleteUserDto.getEmail())) {
             userRepository.delete(user);
             log.info("User with UUID {} deleted!", user.getId());
