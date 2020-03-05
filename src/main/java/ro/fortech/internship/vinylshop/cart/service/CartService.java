@@ -7,7 +7,12 @@ import ro.fortech.internship.vinylshop.cart.converter.CartDtoConverter;
 import ro.fortech.internship.vinylshop.cart.dto.CartDisplayDto;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.cart.repository.CartRepository;
+import ro.fortech.internship.vinylshop.cartitem.dto.CartItemAddToCardDto;
+import ro.fortech.internship.vinylshop.cartitem.model.CartItem;
+import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.item.model.Item;
+import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
@@ -19,11 +24,13 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository, UserRepository userRepository) {
+    public CartService(CartRepository cartRepository, UserRepository userRepository, ItemRepository itemRepository) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
     }
 
     public CartDisplayDto getItems(UUID userId) {
@@ -35,6 +42,42 @@ public class CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
         return CartDtoConverter.toCartDisplayDtoFromCart(cart);
+    }
+
+    public void addItem(UUID userId, CartItemAddToCardDto cartItemAddToCardDto) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Item item = itemRepository.findById(cartItemAddToCardDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("The requested item does not exist!"));
+
+        if (cartItemAddToCardDto.getQuantity() > item.getQuantity()) {
+            throw new InvalidQuantityException("Not enough stock for requested item!");
+        }
+
+        addItemToCart(userId, cartItemAddToCardDto, item);
+        log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+    }
+
+    private void addItemToCart(UUID userId, CartItemAddToCardDto cartItemAddToCardDto, Item item) {
+        CartItem cartItem = new CartItem();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Cart cart = user.getCart();
+
+        cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
+        cartItem.setItem(item);
+
+        cart.getItemsInCart().add(cartItem);
+        cart.setNumberOfItems(cart.getItemsInCart().size());
+
+        Double cartTotalCost = cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToDouble(c -> c.getItem().getPrice())
+                .sum();
+
+        cart.setTotalCost(cartTotalCost);
+        cartRepository.save(cart);
     }
 
 }

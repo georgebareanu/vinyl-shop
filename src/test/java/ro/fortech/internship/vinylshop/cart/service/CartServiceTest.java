@@ -5,6 +5,7 @@ import org.junit.Test;
 import ro.fortech.internship.vinylshop.BaseTest;
 import ro.fortech.internship.vinylshop.user.model.User;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CartServiceTest extends BaseTest {
@@ -18,6 +19,13 @@ public class CartServiceTest extends BaseTest {
     public void cartIsEmptyJsonTest() {
         User user = userSetup.createValidUser();
         assertTrue(user.getCart().getItemsInCart().isEmpty());
+    }
+
+    @Test
+    public void CartIsFilledJsonTest() {
+        User user = userSetup.createValidUser();
+        cartSetupTest.AddItemsInCart(user);
+        assertFalse(user.getCart().getItemsInCart().isEmpty());
     }
 
 }

@@ -29,4 +29,11 @@ public class CommonExceptionHandler {
     String userNotFound(ResourceNotFoundException ex) {
         return ex.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidQuantityException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    String invalidQuantityForItem(InvalidQuantityException ex) {
+        return ex.getMessage();
+    }
 }
