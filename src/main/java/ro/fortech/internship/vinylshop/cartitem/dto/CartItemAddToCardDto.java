@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.Min;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -13,10 +12,8 @@ import java.util.UUID;
 @Data
 public class CartItemAddToCardDto {
 
-    @NotBlank
     private UUID itemId;
 
-    @NotBlank
-    @Size(min = 1)
+    @Min(value = 1, message = "Invalid number. Must be a positive number.")
     private Integer quantity;
 }

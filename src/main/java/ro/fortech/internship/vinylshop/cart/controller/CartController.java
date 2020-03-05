@@ -7,6 +7,7 @@ import ro.fortech.internship.vinylshop.cart.dto.CartDisplayDto;
 import ro.fortech.internship.vinylshop.cart.service.CartService;
 import ro.fortech.internship.vinylshop.cartitem.dto.CartItemAddToCardDto;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -28,7 +29,7 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addItem(@RequestHeader UUID userId, @RequestBody CartItemAddToCardDto cartItemDto) {
+    public void addItem(@RequestHeader UUID userId, @RequestBody @Valid CartItemAddToCardDto cartItemDto) {
         cartService.addItem(userId, cartItemDto);
     }
 

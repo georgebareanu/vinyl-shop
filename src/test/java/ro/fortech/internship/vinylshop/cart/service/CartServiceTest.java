@@ -1,8 +1,11 @@
 package ro.fortech.internship.vinylshop.cart.service;
 
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import ro.fortech.internship.vinylshop.BaseTest;
+import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 import static org.junit.Assert.assertFalse;
@@ -10,9 +13,13 @@ import static org.junit.Assert.assertTrue;
 
 public class CartServiceTest extends BaseTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @After
     public void tearDown() {
         userSetup.deleteUsersDatabase();
+        cartSetupTest.deleteItemsFromDatabase();
     }
 
     @Test
@@ -24,8 +31,17 @@ public class CartServiceTest extends BaseTest {
     @Test
     public void CartIsFilledJsonTest() {
         User user = userSetup.createValidUser();
-        cartSetupTest.AddItemsInCart(user);
+        cartSetupTest.addItemsInCart(user);
         assertFalse(user.getCart().getItemsInCart().isEmpty());
     }
+
+
+    @Test
+    public void addToCartWithNotEnoughStockTest() {
+        expectedException.expect(InvalidQuantityException.class);
+        User user = userSetup.createValidUser();
+        cartSetupTest.createCartWithVariableQuantity(user.getId(), 15);
+    }
+
 
 }
