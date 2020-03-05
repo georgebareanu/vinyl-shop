@@ -1,7 +1,9 @@
 package ro.fortech.internship.vinylshop.cartitem.model;
 
-import lombok.*;
-import ro.fortech.internship.vinylshop.cart.model.Cart;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ro.fortech.internship.vinylshop.item.model.Item;
 
 import javax.persistence.*;
@@ -21,10 +23,6 @@ public class CartItem {
     @OneToOne
     @JoinColumn(name = "item_id")
     private Item item;
-
-    @ToString.Exclude
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private Cart cart;
 
     private Integer quantity;
 
