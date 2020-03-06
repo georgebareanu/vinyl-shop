@@ -10,7 +10,6 @@ import ro.fortech.internship.vinylshop.cart.repository.CartRepository;
 import ro.fortech.internship.vinylshop.cartitem.dto.CartItemAddToCardDto;
 import ro.fortech.internship.vinylshop.cartitem.model.CartItem;
 import ro.fortech.internship.vinylshop.cartitem.repository.CartItemRepository;
-import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
@@ -50,16 +49,15 @@ public class CartService {
     }
 
     public void addItem(UUID userId, CartItemAddToCardDto cartItemAddToCardDto) {
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Item item = itemRepository.findById(cartItemAddToCardDto.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("The requested item does not exist!"));
 
-        if (cartItemAddToCardDto.getQuantity() > item.getQuantity()) {
-            throw new InvalidQuantityException("Not enough stock for requested item!");
-        }
+        //todo: validare in cazul in care cantitatea CartItem-ului din cart, este mai mare decat cantitatea stock-ului.
 
         addItemToCart(userId, cartItemAddToCardDto, item);
+
         log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
     }
 
@@ -89,12 +87,19 @@ public class CartService {
         cartItem.setItem(item);
 
         cart.getItemsInCart().add(cartItem);
-        cart.setNumberOfItems(cart.getItemsInCart().size());
+
+        int numberOfItemsInCart = cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+
+        cart.setNumberOfItems(numberOfItemsInCart);
 
         Double cartTotalCost = cart.getItemsInCart()
                 .stream()
                 .filter(c -> c.getOrderId() == null)
-                .mapToDouble(c -> c.getItem().getPrice())
+                .mapToDouble(c -> c.getItem().getPrice() * c.getQuantity())
                 .sum();
 
         cart.setTotalCost(cartTotalCost);
