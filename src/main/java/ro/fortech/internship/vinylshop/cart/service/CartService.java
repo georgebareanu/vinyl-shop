@@ -9,6 +9,7 @@ import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.cart.repository.CartRepository;
 import ro.fortech.internship.vinylshop.cartitem.dto.CartItemAddToCardDto;
 import ro.fortech.internship.vinylshop.cartitem.model.CartItem;
+import ro.fortech.internship.vinylshop.cartitem.repository.CartItemRepository;
 import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.item.model.Item;
@@ -16,6 +17,7 @@ import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Slf4j
@@ -25,12 +27,15 @@ public class CartService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final CartItemRepository cartItemRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository, UserRepository userRepository, ItemRepository itemRepository) {
+    public CartService(CartRepository cartRepository, UserRepository userRepository,
+                       ItemRepository itemRepository, CartItemRepository cartItemRepository) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.itemRepository = itemRepository;
+        this.cartItemRepository = cartItemRepository;
     }
 
     public CartDisplayDto getItems(UUID userId) {
@@ -56,6 +61,22 @@ public class CartService {
 
         addItemToCart(userId, cartItemAddToCardDto, item);
         log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+    }
+
+    @Transactional
+    public void removeItem(UUID userId, UUID cartItemId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+
+        cart.setTotalCost(cart.getTotalCost() - cartItem.getItem().getPrice());
+        cart.setNumberOfItems(cart.getNumberOfItems() - cartItem.getQuantity());
+        cart.getItemsInCart().remove(cartItem);
+        cartRepository.save(cart);
+        cartItemRepository.delete(cartItem);
     }
 
     private void addItemToCart(UUID userId, CartItemAddToCardDto cartItemAddToCardDto, Item item) {

@@ -33,4 +33,10 @@ public class CartController {
         cartService.addItem(userId, cartItemDto);
     }
 
+    @DeleteMapping(value = "/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remove(@RequestHeader UUID userId, @PathVariable UUID itemId) {
+        cartService.removeItem(userId, itemId);
+    }
+
 }
