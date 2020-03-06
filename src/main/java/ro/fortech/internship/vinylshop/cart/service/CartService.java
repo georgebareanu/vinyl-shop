@@ -17,6 +17,7 @@ import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Slf4j
@@ -62,19 +63,20 @@ public class CartService {
         log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
     }
 
+    @Transactional
     public void removeItem(UUID userId, UUID cartItemId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-
-
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
+        cart.setTotalCost(cart.getTotalCost() - cartItem.getItem().getPrice());
+        cart.setNumberOfItems(cart.getNumberOfItems() - cartItem.getQuantity());
         cart.getItemsInCart().remove(cartItem);
-        cartItemRepository.deleteById(cartItemId);
         cartRepository.save(cart);
+        cartItemRepository.delete(cartItem);
     }
 
     private void addItemToCart(UUID userId, CartItemAddToCardDto cartItemAddToCardDto, Item item) {

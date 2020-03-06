@@ -34,15 +34,11 @@ public class CartSetupTest {
     @Autowired
     private CartService cartService;
 
-    public void deleteCartsFromDatabase() {
-        cartRepository.deleteAll();
-    }
-
     public void deleteItemsFromDatabase() {
         itemRepository.deleteAll();
     }
 
-    public void addItemsInCart(User user) {
+    public UUID addItemsInCart(User user) {
         Item item = Item.builder().name("Guns'n'Roses")
                 .price(24.3).quantity(1).status(ItemStatus.ACTIVE).build();
         itemRepository.save(item);
@@ -55,6 +51,7 @@ public class CartSetupTest {
         user.getCart().setTotalCost(24.3 * 1);
 
         userRepository.save(user);
+        return cartItem.getId();
     }
 
     public UUID createItem() {
@@ -64,10 +61,13 @@ public class CartSetupTest {
         return item.getId();
     }
 
-    public void createCartWithVariableQuantity(UUID userId, int quantity) {
+    public void addToCartWithVariableQuantity(UUID userId, int quantity) {
         UUID itemId = createItem();
         CartItemAddToCardDto addCartItemDto = new CartItemAddToCardDto(itemId, quantity);
         cartService.addItem(userId, addCartItemDto);
     }
 
+    public void removeCartItemFromCart(UUID userId, UUID cartItemId) {
+        cartService.removeItem(userId, cartItemId);
+    }
 }

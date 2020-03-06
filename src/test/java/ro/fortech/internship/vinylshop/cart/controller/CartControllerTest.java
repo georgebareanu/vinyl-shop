@@ -100,4 +100,32 @@ public class CartControllerTest extends BaseTest {
                 HttpMethod.POST, request, String.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
     }
+
+    @Test
+    public void removeVinylSuccessfulTest() {
+        User user = userSetup.createValidUser();
+        UUID cartItemId = cartSetupTest.addItemsInCart(user);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("userId", user.getId().toString());
+        HttpEntity<UUID> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = this.restTemplate.exchange(createUrl("api/users/cart/{itemId}"),
+                HttpMethod.DELETE, request, String.class, cartItemId);
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    public void removeVinylThatIsNotPresentInCartTest() {
+        User user = userSetup.createValidUser();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("userId", user.getId().toString());
+        HttpEntity<UUID> request = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = this.restTemplate.exchange(createUrl("api/users/cart/{itemId}"),
+                HttpMethod.DELETE, request, String.class, UUID.randomUUID());
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
+    }
+
 }
