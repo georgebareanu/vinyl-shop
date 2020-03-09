@@ -10,6 +10,7 @@ import ro.fortech.internship.vinylshop.cart.repository.CartRepository;
 import ro.fortech.internship.vinylshop.cartitem.dto.CartItemAddToCardDto;
 import ro.fortech.internship.vinylshop.cartitem.model.CartItem;
 import ro.fortech.internship.vinylshop.cartitem.repository.CartItemRepository;
+import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
@@ -54,11 +55,61 @@ public class CartService {
         Item item = itemRepository.findById(cartItemAddToCardDto.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("The requested item does not exist!"));
 
-        //todo: validare in cazul in care cantitatea CartItem-ului din cart, este mai mare decat cantitatea stock-ului.
+        CartItem cartItemInCart = user.getCart().getItemsInCart().stream()
+                .filter(c -> c.getItem().getName().equals(item.getName()))
+                .findAny()
+                .orElse(null);
 
-        addItemToCart(userId, cartItemAddToCardDto, item);
-
+        if (cartItemInCart == null) {
+            addItemToCart(user, cartItemAddToCardDto, item);
+        } else {
+            addItemToCartIfCartItemAlreadyExist(user, cartItemAddToCardDto, item, cartItemInCart);
+        }
         log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+    }
+
+    private void addItemToCartIfCartItemAlreadyExist(User user, CartItemAddToCardDto cartItemAddToCardDto,
+                                                     Item item, CartItem cartItem) {
+        Cart cart = user.getCart();
+        int updatedQuantity = cartItem.getQuantity() + cartItemAddToCardDto.getQuantity();
+
+        if (updatedQuantity > item.getQuantity()) {
+            throw new InvalidQuantityException("Insufficient stock");
+        }
+
+        cartItem.setQuantity(updatedQuantity);
+        cart.setNumberOfItems(setQuantity(cart));
+        cart.setTotalCost(setTotalCost(cart));
+        cartRepository.save(cart);
+    }
+
+    private void addItemToCart(User user, CartItemAddToCardDto cartItemAddToCardDto, Item item) {
+        CartItem cartItem = new CartItem();
+        Cart cart = user.getCart();
+
+        cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
+        cartItem.setItem(item);
+
+        cart.getItemsInCart().add(cartItem);
+        cart.setNumberOfItems(setQuantity(cart));
+        cart.setTotalCost(setTotalCost(cart));
+        cartRepository.save(cart);
+    }
+
+    private int setQuantity(Cart cart) {
+        return cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+    }
+
+    private double setTotalCost(Cart cart) {
+        return cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToDouble(c -> c.getItem().getPrice() * c.getQuantity())
+                .sum();
     }
 
     @Transactional
@@ -75,35 +126,6 @@ public class CartService {
         cart.getItemsInCart().remove(cartItem);
         cartRepository.save(cart);
         cartItemRepository.delete(cartItem);
-    }
-
-    private void addItemToCart(UUID userId, CartItemAddToCardDto cartItemAddToCardDto, Item item) {
-        CartItem cartItem = new CartItem();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Cart cart = user.getCart();
-
-        cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
-        cartItem.setItem(item);
-
-        cart.getItemsInCart().add(cartItem);
-
-        int numberOfItemsInCart = cart.getItemsInCart()
-                .stream()
-                .filter(c -> c.getOrderId() == null)
-                .mapToInt(CartItem::getQuantity)
-                .sum();
-
-        cart.setNumberOfItems(numberOfItemsInCart);
-
-        Double cartTotalCost = cart.getItemsInCart()
-                .stream()
-                .filter(c -> c.getOrderId() == null)
-                .mapToDouble(c -> c.getItem().getPrice() * c.getQuantity())
-                .sum();
-
-        cart.setTotalCost(cartTotalCost);
-        cartRepository.save(cart);
     }
 
 }
