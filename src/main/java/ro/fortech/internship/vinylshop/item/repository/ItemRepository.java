@@ -6,4 +6,5 @@ import ro.fortech.internship.vinylshop.item.model.Item;
 import java.util.UUID;
 
 public interface ItemRepository extends JpaRepository<Item, UUID> {
+    Item findByName(String name);
 }

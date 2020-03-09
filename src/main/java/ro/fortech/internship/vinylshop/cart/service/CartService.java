@@ -50,17 +50,66 @@ public class CartService {
     }
 
     public void addItem(UUID userId, CartItemAddToCardDto cartItemAddToCardDto) {
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Item item = itemRepository.findById(cartItemAddToCardDto.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("The requested item does not exist!"));
 
-        if (cartItemAddToCardDto.getQuantity() > item.getQuantity()) {
-            throw new InvalidQuantityException("Not enough stock for requested item!");
+        CartItem cartItemInCart = user.getCart().getItemsInCart().stream()
+                .filter(c -> c.getItem().getName().equals(item.getName()))
+                .findAny()
+                .orElse(null);
+
+        if (cartItemInCart == null) {
+            addItemToCart(user, cartItemAddToCardDto, item);
+        } else {
+            addItemToCartIfCartItemAlreadyExist(user, cartItemAddToCardDto, item, cartItemInCart);
+        }
+        log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+    }
+
+    private void addItemToCartIfCartItemAlreadyExist(User user, CartItemAddToCardDto cartItemAddToCardDto,
+                                                     Item item, CartItem cartItem) {
+        Cart cart = user.getCart();
+        int updatedQuantity = cartItem.getQuantity() + cartItemAddToCardDto.getQuantity();
+
+        if (updatedQuantity > item.getQuantity()) {
+            throw new InvalidQuantityException("Insufficient stock");
         }
 
-        addItemToCart(userId, cartItemAddToCardDto, item);
-        log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+        cartItem.setQuantity(updatedQuantity);
+        cart.setNumberOfItems(setQuantity(cart));
+        cart.setTotalCost(setTotalCost(cart));
+        cartRepository.save(cart);
+    }
+
+    private void addItemToCart(User user, CartItemAddToCardDto cartItemAddToCardDto, Item item) {
+        CartItem cartItem = new CartItem();
+        Cart cart = user.getCart();
+
+        cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
+        cartItem.setItem(item);
+
+        cart.getItemsInCart().add(cartItem);
+        cart.setNumberOfItems(setQuantity(cart));
+        cart.setTotalCost(setTotalCost(cart));
+        cartRepository.save(cart);
+    }
+
+    private int setQuantity(Cart cart) {
+        return cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+    }
+
+    private double setTotalCost(Cart cart) {
+        return cart.getItemsInCart()
+                .stream()
+                .filter(c -> c.getOrderId() == null)
+                .mapToDouble(c -> c.getItem().getPrice() * c.getQuantity())
+                .sum();
     }
 
     @Transactional
@@ -77,28 +126,6 @@ public class CartService {
         cart.getItemsInCart().remove(cartItem);
         cartRepository.save(cart);
         cartItemRepository.delete(cartItem);
-    }
-
-    private void addItemToCart(UUID userId, CartItemAddToCardDto cartItemAddToCardDto, Item item) {
-        CartItem cartItem = new CartItem();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Cart cart = user.getCart();
-
-        cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
-        cartItem.setItem(item);
-
-        cart.getItemsInCart().add(cartItem);
-        cart.setNumberOfItems(cart.getItemsInCart().size());
-
-        Double cartTotalCost = cart.getItemsInCart()
-                .stream()
-                .filter(c -> c.getOrderId() == null)
-                .mapToDouble(c -> c.getItem().getPrice())
-                .sum();
-
-        cart.setTotalCost(cartTotalCost);
-        cartRepository.save(cart);
     }
 
 }
