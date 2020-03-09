@@ -19,8 +19,17 @@ public class ItemSetup {
         itemRepository.deleteAll();
     }
 
-    public CreateItemDto createItemDto() {
-        return new CreateItemDto("Bob Marley", 15.5, 10);
+    public CreateItemDto createItemDto(int stock, String name) {
+        return new CreateItemDto(name, 15.5, stock);
     }
 
+    public void createValidItemAndSave() {
+        CreateItemDto createItemDto = createItemDto(15, "Bob Marley");
+        itemService.create(createItemDto);
+    }
+
+    public void createItemWithZeroQuantityAndSave() {
+        CreateItemDto createItemDto = createItemDto(0, "Bob Marley");
+        itemService.create(createItemDto);
+    }
 }
