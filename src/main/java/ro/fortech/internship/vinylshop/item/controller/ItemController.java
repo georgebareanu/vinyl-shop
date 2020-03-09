@@ -7,6 +7,7 @@ import ro.fortech.internship.vinylshop.item.dto.CreateItemDto;
 import ro.fortech.internship.vinylshop.item.service.ItemService;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/vinyls")
@@ -23,5 +24,11 @@ public class ItemController {
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody CreateItemDto createItemDto) {
         itemService.create(createItemDto);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remove(@PathVariable UUID id){
+        itemService.remove(id);
     }
 }
