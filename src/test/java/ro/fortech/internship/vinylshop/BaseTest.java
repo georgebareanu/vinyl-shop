@@ -8,6 +8,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
 import ro.fortech.internship.vinylshop.cart.setup.CartSetupTest;
 import ro.fortech.internship.vinylshop.item.setup.ItemSetup;
+import ro.fortech.internship.vinylshop.order.setup.OrderSetup;
 import ro.fortech.internship.vinylshop.user.setup.UserSetup;
 
 @RunWith(SpringRunner.class)
@@ -15,6 +16,9 @@ import ro.fortech.internship.vinylshop.user.setup.UserSetup;
 public abstract class BaseTest {
 
     protected TestRestTemplate restTemplate = new TestRestTemplate();
+
+    @Autowired
+    protected OrderSetup orderSetup = new OrderSetup();
 
     @Autowired
     protected ItemSetup itemSetup = new ItemSetup();
