@@ -9,8 +9,7 @@ import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.model.ItemStatus;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ItemServiceTest extends BaseTest {
 
@@ -39,5 +38,12 @@ public class ItemServiceTest extends BaseTest {
         Item item = itemRepository.findByName("Bob Marley");
         itemRepository.delete(item);
         assertNull(itemRepository.findByName("Bob Marley"));
+    }
+
+    @Test
+    public void updateItemTest() {
+        itemSetup.createThenUpdateItemAndSave();
+        Item item = itemRepository.findByName("Guns'N'Roses");
+        assertEquals(40, item.getQuantity(), 0.008);
     }
 }
