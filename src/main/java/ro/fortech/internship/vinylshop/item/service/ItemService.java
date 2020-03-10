@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.ItemNotFoundException;
 import ro.fortech.internship.vinylshop.item.converter.DtoConverter;
-import ro.fortech.internship.vinylshop.item.dto.CreateItemDto;
+import ro.fortech.internship.vinylshop.item.dto.CreateOrUpdateItemDto;
 import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.model.ItemStatus;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
@@ -23,8 +23,9 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public void create(CreateItemDto createItemDto) {
-        Item item = DtoConverter.toItemFromCreateItemDto(createItemDto);
+    public void create(CreateOrUpdateItemDto createOrUpdateItemDto) {
+        Item item = new Item();
+        DtoConverter.toItemFromCreateItemDto(item, createOrUpdateItemDto);
 
         try {
             itemRepository.save(item);
@@ -39,6 +40,18 @@ public class ItemService {
         item.setQuantity(0);
         item.setStatus(ItemStatus.DELETED);
         itemRepository.save(item);
+    }
+
+    public void update(UUID itemId, CreateOrUpdateItemDto createOrUpdateItemDto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        DtoConverter.toItemFromCreateItemDto(item, createOrUpdateItemDto);
+
+        try {
+            itemRepository.save(item);
+        } catch (DataIntegrityViolationException e) {
+            throw new InvalidException("That item already is in stock.");
+        }
     }
 
 

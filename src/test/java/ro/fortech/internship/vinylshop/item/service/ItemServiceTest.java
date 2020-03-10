@@ -1,5 +1,6 @@
 package ro.fortech.internship.vinylshop.item.service;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,6 +21,11 @@ public class ItemServiceTest extends BaseTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @After
+    public void tearDown() {
+        itemSetup.deleteItemsFromDb();
+    }
+
     @Test
     public void createValidItem() {
         itemSetup.createValidItemAndSave();
@@ -39,5 +45,12 @@ public class ItemServiceTest extends BaseTest {
         Item item = itemRepository.findByName("Bob Marley");
         itemRepository.delete(item);
         assertNull(itemRepository.findByName("Bob Marley"));
+    }
+
+    @Test
+    public void updateItemTest() {
+        itemSetup.createThenUpdateItemAndSave();
+        Item item = itemRepository.findByName("Guns'N'Roses");
+        assertEquals(40, item.getQuantity(), 0.008);
     }
 }
