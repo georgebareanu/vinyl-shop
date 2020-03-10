@@ -7,7 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import ro.fortech.internship.vinylshop.BaseTest;
-import ro.fortech.internship.vinylshop.item.dto.CreateItemDto;
+import ro.fortech.internship.vinylshop.item.dto.CreateOrUpdateItemDto;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class ItemControllerTest extends BaseTest {
 
     @Test
     public void itemCreateTest() {
-        CreateItemDto validItem = itemSetup.createItemDto(10, "Bob Marley");
+        CreateOrUpdateItemDto validItem = itemSetup.createItemDto(10, "Bob Marley");
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls"),
                 POST, new HttpEntity<>(validItem), String.class);
         assertThat(response.getStatusCode(), equalTo(CREATED));
@@ -38,7 +38,7 @@ public class ItemControllerTest extends BaseTest {
 
     @Test
     public void itemCreateWithZeroQuantityTest() {
-        CreateItemDto validItem = itemSetup.createItemDto(0, "Bob Marley");
+        CreateOrUpdateItemDto validItem = itemSetup.createItemDto(0, "Bob Marley");
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls"),
                 POST, new HttpEntity<>(validItem), String.class);
         assertThat(response.getStatusCode(), equalTo(CREATED));
@@ -46,7 +46,7 @@ public class ItemControllerTest extends BaseTest {
 
     @Test
     public void itemCreateWithNegativeQuantityTest() {
-        CreateItemDto validItem = itemSetup.createItemDto(-16, "Bob Marley");
+        CreateOrUpdateItemDto validItem = itemSetup.createItemDto(-16, "Bob Marley");
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls"),
                 POST, new HttpEntity<>(validItem), String.class);
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
@@ -54,7 +54,7 @@ public class ItemControllerTest extends BaseTest {
 
     @Test
     public void itemCreateWithEmptyNameTest() {
-        CreateItemDto validItem = itemSetup.createItemDto(-16, "");
+        CreateOrUpdateItemDto validItem = itemSetup.createItemDto(-16, "");
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls"),
                 POST, new HttpEntity<>(validItem), String.class);
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
@@ -80,6 +80,4 @@ public class ItemControllerTest extends BaseTest {
                 DELETE, new HttpEntity<>(headers), String.class, UUID.randomUUID());
         assertThat(response.getStatusCode(), equalTo(NOT_FOUND));
     }
-
-
 }

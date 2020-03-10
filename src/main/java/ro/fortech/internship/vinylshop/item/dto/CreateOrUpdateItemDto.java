@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateItemDto {
+public class CreateOrUpdateItemDto {
 
     @NotBlank(message = "This field can't empty.")
     private String name;
