@@ -42,6 +42,13 @@ public class CommonExceptionHandler {
         return ex.getMessage();
     }
 
+    @ResponseBody
+    @ExceptionHandler(ItemNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String ItemNotFoundException(ItemNotFoundException ex) {
+        return ex.getMessage();
+    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)

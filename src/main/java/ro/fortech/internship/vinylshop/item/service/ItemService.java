@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
-import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.common.exception.ItemNotFoundException;
 import ro.fortech.internship.vinylshop.item.converter.DtoConverter;
 import ro.fortech.internship.vinylshop.item.dto.CreateItemDto;
 import ro.fortech.internship.vinylshop.item.model.Item;
@@ -35,7 +35,7 @@ public class ItemService {
 
     public void remove(UUID itemId) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
         item.setQuantity(0);
         item.setStatus(ItemStatus.DELETED);
         itemRepository.save(item);
