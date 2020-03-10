@@ -90,7 +90,7 @@ public class CartControllerTest extends BaseTest {
     public void addToCartWithNotEnoughStockTest() {
         User user = userSetup.createValidUser();
         UUID itemId = cartSetupTest.createItem();
-        CartItemAddToCardDto cartItemAddToCardDto = new CartItemAddToCardDto(itemId, 15);
+        CartItemAddToCardDto cartItemAddToCardDto = new CartItemAddToCardDto(itemId, 45);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("userId", user.getId().toString());

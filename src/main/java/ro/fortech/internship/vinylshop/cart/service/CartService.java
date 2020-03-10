@@ -87,6 +87,10 @@ public class CartService {
         CartItem cartItem = new CartItem();
         Cart cart = user.getCart();
 
+        if (cartItemAddToCardDto.getQuantity() > item.getQuantity()) {
+            throw new InvalidQuantityException("Insufficient stock");
+        }
+
         cartItem.setQuantity(cartItemAddToCardDto.getQuantity());
         cartItem.setItem(item);
 

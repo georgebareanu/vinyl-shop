@@ -14,8 +14,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.*;
 
 public class ItemControllerTest extends BaseTest {
@@ -79,5 +78,38 @@ public class ItemControllerTest extends BaseTest {
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls/{id}"),
                 DELETE, new HttpEntity<>(headers), String.class, UUID.randomUUID());
         assertThat(response.getStatusCode(), equalTo(NOT_FOUND));
+    }
+
+    @Test
+    public void updateSuccessfulTest() {
+        itemSetup.createValidItemAndSave();
+        UUID itemId = itemRepository.findByName("Bob Marley").getId();
+        CreateOrUpdateItemDto createOrUpdateItemDto = itemSetup.createItemDto(60, "Guns'N'Roses");
+
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls/{id}"),
+                PUT, new HttpEntity<>(createOrUpdateItemDto), String.class, itemId);
+        assertThat(response.getStatusCode(), equalTo(OK));
+    }
+
+    @Test
+    public void updateEmptyNameTest() {
+        itemSetup.createValidItemAndSave();
+        UUID itemId = itemRepository.findByName("Bob Marley").getId();
+        CreateOrUpdateItemDto createOrUpdateItemDto = itemSetup.createItemDto(60, "");
+
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls/{id}"),
+                PUT, new HttpEntity<>(createOrUpdateItemDto), String.class, itemId);
+        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
+    }
+
+    @Test
+    public void updateNegativeStockTest() {
+        itemSetup.createValidItemAndSave();
+        UUID itemId = itemRepository.findByName("Bob Marley").getId();
+        CreateOrUpdateItemDto createOrUpdateItemDto = itemSetup.createItemDto(-3, "Guns'N'Roses");
+
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls/{id}"),
+                PUT, new HttpEntity<>(createOrUpdateItemDto), String.class, itemId);
+        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }
 }
