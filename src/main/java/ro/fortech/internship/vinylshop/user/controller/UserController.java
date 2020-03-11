@@ -3,6 +3,7 @@ package ro.fortech.internship.vinylshop.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ro.fortech.internship.vinylshop.order.dto.DisplayOrderDto;
 import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.service.UserService;
 
@@ -42,5 +43,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<DisplayUserDto> getCustomers() {
         return userService.getCustomers();
+    }
+
+    @GetMapping(value = "/users/{userId}/orders")
+    @ResponseStatus(HttpStatus.OK)
+    public List<DisplayOrderDto> getUserOrders(@PathVariable UUID userId) {
+        return userService.getUserOrders(userId);
     }
 }

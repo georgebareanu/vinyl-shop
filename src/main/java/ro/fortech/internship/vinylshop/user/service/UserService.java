@@ -4,9 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.order.converter.OrderDtoConverter;
+import ro.fortech.internship.vinylshop.order.dto.DisplayOrderDto;
+import ro.fortech.internship.vinylshop.order.model.Order;
 import ro.fortech.internship.vinylshop.user.converter.DtoConverter;
 import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.model.User;
@@ -40,8 +44,8 @@ public class UserService {
         User user = dtoConverter.toUserFromCreateUserDto(createUserDto);
 
         try {
-            userRepository.save(user);
             log.info("User created");
+            userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             log.error("Email already exist", e);
             throw new InvalidException("Email already exist");
@@ -57,6 +61,16 @@ public class UserService {
         } else {
             throw new InvalidPasswordOrEmailException("Invalid email or password!");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<DisplayOrderDto> getUserOrders(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Order> orders = user.getOrders();
+        return orders.stream()
+                .map(OrderDtoConverter::toDisplayOrderDtoFromOrder)
+                .collect(Collectors.toList());
     }
 
     public AuthenticationTokenDTO userLogin(LoginUserDto loginUserDTO) {

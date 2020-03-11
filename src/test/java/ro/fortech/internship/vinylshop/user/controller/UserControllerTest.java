@@ -195,4 +195,13 @@ public class UserControllerTest extends BaseTest {
                 GET, new HttpEntity<>(headers), String.class);
         assertThat(response.getStatusCode(), equalTo(OK));
     }
+
+    @Test
+    public void getAllCustomerOrdersTest() {
+        User user = userSetup.createValidUser();
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("/api/users/{userId}/orders"),
+                GET, new HttpEntity<>(headers), String.class, user.getId());
+        assertThat(response.getStatusCode(), equalTo(OK));
+    }
 }

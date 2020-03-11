@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ro.fortech.internship.vinylshop.BaseTest;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
+import ro.fortech.internship.vinylshop.user.model.User;
+import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
 import static org.junit.Assert.*;
 
@@ -16,6 +18,9 @@ public class UserServiceTest extends BaseTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -161,7 +166,13 @@ public class UserServiceTest extends BaseTest {
 
     @Test
     public void getCustomersNotEmptyTest() {
-        userSetup.createValidUser();
+        userSetup.createAndSaveUser();
         assertFalse(userService.getCustomers().isEmpty());
+    }
+
+    @Test
+    public void getCustomerOrdersTest() {
+        User user = userSetup.createValidUser();
+        assertTrue(userService.getUserOrders(user.getId()).isEmpty());
     }
 }

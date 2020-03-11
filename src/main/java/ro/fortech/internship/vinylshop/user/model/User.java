@@ -53,7 +53,7 @@ public class User {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private List<Order> orders = new ArrayList<>();
 
