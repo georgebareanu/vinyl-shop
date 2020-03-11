@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
+import ro.fortech.internship.vinylshop.user.dto.DisplayUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 @Component
@@ -31,6 +32,14 @@ public class DtoConverter {
         //todo: don't forget to encode the password when security is implemented
         user.setPassword(createUserDto.getPassword());
         return user;
+    }
+
+    public DisplayUserDto toDisplayUserDtoFromUser(User user) {
+        DisplayUserDto displayUserDto = new DisplayUserDto();
+        displayUserDto.setEmail(user.getEmail());
+        displayUserDto.setFirstName(user.getFirstName());
+        displayUserDto.setLastName(user.getLastName());
+        return displayUserDto;
     }
 
     private void validUserDto(CreateUserDto createUserDto) {

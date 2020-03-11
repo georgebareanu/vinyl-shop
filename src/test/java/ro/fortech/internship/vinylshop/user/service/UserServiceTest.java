@@ -5,13 +5,17 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import ro.fortech.internship.vinylshop.BaseTest;
-import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
+import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class UserServiceTest extends BaseTest {
+
+    @Autowired
+    private UserService userService;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -148,5 +152,16 @@ public class UserServiceTest extends BaseTest {
     public void userLoginWithEmailAndEmptyPasswordTest() {
         expectedException.expect(InvalidPasswordOrEmailException.class);
         userSetup.userLoginWithEmailAndEmptyPassword();
+    }
+
+    @Test
+    public void getCustomersEmptyListTest() {
+        assertTrue(userService.getCustomers().isEmpty());
+    }
+
+    @Test
+    public void getCustomersNotEmptyTest() {
+        userSetup.createValidUser();
+        assertFalse(userService.getCustomers().isEmpty());
     }
 }
