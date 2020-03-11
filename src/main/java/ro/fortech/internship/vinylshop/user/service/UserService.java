@@ -8,14 +8,13 @@ import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.user.converter.DtoConverter;
-import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
-import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
-import ro.fortech.internship.vinylshop.user.dto.DeleteUserDto;
-import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
+import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +27,13 @@ public class UserService {
     public UserService(UserRepository userRepository, DtoConverter dtoConverter) {
         this.userRepository = userRepository;
         this.dtoConverter = dtoConverter;
+    }
+
+    public List<DisplayUserDto> getCustomers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(dtoConverter::toDisplayUserDtoFromUser)
+                .collect(Collectors.toList());
     }
 
     public void create(CreateUserDto createUserDto) {

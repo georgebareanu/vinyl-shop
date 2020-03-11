@@ -3,17 +3,15 @@ package ro.fortech.internship.vinylshop.user.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
-import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
-import ro.fortech.internship.vinylshop.user.dto.DeleteUserDto;
-import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
+import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.service.UserService;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("api")
 public class UserController {
 
     private final UserService userService;
@@ -23,20 +21,26 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping(value = "/users")
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@Valid @RequestBody CreateUserDto createUserDto) {
         userService.create(createUserDto);
     }
 
-    @PostMapping(value = "/login")
-    public AuthenticationTokenDTO userLogin(@RequestBody LoginUserDto loginUserDto){
+    @PostMapping(value = "/users/login")
+    public AuthenticationTokenDTO userLogin(@RequestBody LoginUserDto loginUserDto) {
         return userService.userLogin(loginUserDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable UUID id, @Valid @RequestBody DeleteUserDto deleteUserDto) {
         userService.deleteUser(id, deleteUserDto);
+    }
+
+    @GetMapping(value = "/customers")
+    @ResponseStatus(HttpStatus.OK)
+    public List<DisplayUserDto> getCustomers() {
+        return userService.getCustomers();
     }
 }

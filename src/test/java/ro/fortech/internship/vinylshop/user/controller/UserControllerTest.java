@@ -3,10 +3,7 @@ package ro.fortech.internship.vinylshop.user.controller;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import ro.fortech.internship.vinylshop.BaseTest;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.DeleteUserDto;
@@ -17,9 +14,9 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.*;
 
 public class UserControllerTest extends BaseTest {
 
@@ -173,7 +170,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
-    public void deleteUserBadCredentialsTest(){
+    public void deleteUserBadCredentialsTest() {
         User user = userSetup.createValidUser();
         DeleteUserDto deleteUserDto = new DeleteUserDto("somethingRandom@gmail.com", user.getPassword());
         UUID id = user.getId();
@@ -183,7 +180,7 @@ public class UserControllerTest extends BaseTest {
     }
 
     @Test
-    public void deleteUserWithWrongIdTest(){
+    public void deleteUserWithWrongIdTest() {
         User user = userSetup.createValidUser();
         DeleteUserDto deleteUserDto = new DeleteUserDto(user.getEmail(), user.getPassword());
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/{id}"),
@@ -191,4 +188,11 @@ public class UserControllerTest extends BaseTest {
         Assert.assertEquals(BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    public void getAllCustomersTest() {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("/api/customers"),
+                GET, new HttpEntity<>(headers), String.class);
+        assertThat(response.getStatusCode(), equalTo(OK));
+    }
 }
