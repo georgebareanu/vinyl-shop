@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ro.fortech.internship.vinylshop.item.dto.CreateOrUpdateItemDto;
+import ro.fortech.internship.vinylshop.item.dto.ItemDisplayDto;
 import ro.fortech.internship.vinylshop.item.service.ItemService;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +20,12 @@ public class ItemController {
     @Autowired
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<ItemDisplayDto> get() {
+        return itemService.get();
     }
 
     @PostMapping

@@ -112,4 +112,12 @@ public class ItemControllerTest extends BaseTest {
                 PUT, new HttpEntity<>(createOrUpdateItemDto), String.class, itemId);
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }
+
+    @Test
+    public void getItemsTest() {
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> response = restTemplate.exchange(createUrl("api/vinyls"),
+                GET, new HttpEntity<>(headers), String.class);
+        assertThat(response.getStatusCode(), equalTo(OK));
+    }
 }
