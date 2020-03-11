@@ -4,7 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -17,8 +17,10 @@ public class Order {
     private UUID id;
 
     @NotNull
-    private Date dateCreated;
+    private LocalDate dateCreated;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    private Double cost;
 }
