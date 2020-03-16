@@ -25,4 +25,10 @@ public class OrderController {
     public List<Order> getOrders(@RequestHeader UUID userId) {
         return orderService.getOrders(userId);
     }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void create(@RequestHeader UUID userId) {
+        orderService.create(userId);
+    }
 }
