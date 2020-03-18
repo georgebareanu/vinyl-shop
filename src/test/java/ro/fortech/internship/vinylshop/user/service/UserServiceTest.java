@@ -173,6 +173,7 @@ public class UserServiceTest extends BaseTest {
     @Test
     public void getCustomerOrdersTest() {
         User user = userSetup.createValidUser();
-        assertTrue(userService.getUserOrders(user.getId()).isEmpty());
+        User managerUser = userSetup.createValidUser();
+        assertTrue(userService.getUserOrders(managerUser.getId(), user.getId()).isEmpty());
     }
 }

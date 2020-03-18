@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PassayConfic {
+public class PassayConfig {
     @Bean
     public PasswordValidator validatePassword() {
         return new PasswordValidator(
