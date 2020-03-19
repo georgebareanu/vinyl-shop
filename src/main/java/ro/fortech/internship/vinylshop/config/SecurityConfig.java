@@ -14,14 +14,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
-    public void configure(HttpSecurity httpSecurity) throws Exception {
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .cors()
+                .disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "api/vinyls").permitAll()
-                .antMatchers(HttpMethod.POST, "api/vinyls").hasRole("MANAGER")
-                .antMatchers("/customers").authenticated()
-                .and()
-                .httpBasic();
+                .antMatchers(HttpMethod.POST, "/api/users").permitAll().anyRequest().denyAll();
     }
 
     @Bean
