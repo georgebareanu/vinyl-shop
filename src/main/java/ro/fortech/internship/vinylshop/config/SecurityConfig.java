@@ -17,9 +17,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .cors()
+                .and()
+                .csrf()
                 .disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/users").permitAll().anyRequest().denyAll();
+                .antMatchers("/api/users").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/vinyls").permitAll()
+                .antMatchers("/api/users/login").permitAll()
+                .antMatchers("/api/users/cart").authenticated()
+                .antMatchers("/api/users/orders").authenticated()
+                .antMatchers("/api/users/{id}").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/vinyls").hasRole("MANAGER")
+                .antMatchers("/api/vinyls/{id}").hasRole("MANAGER")
+                .antMatchers("/api/customers").hasRole("MANAGER")
+                .antMatchers("/api/users/{userId}/orders").hasRole("MANAGER");
     }
 
     @Bean
