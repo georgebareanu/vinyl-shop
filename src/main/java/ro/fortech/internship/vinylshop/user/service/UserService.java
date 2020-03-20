@@ -64,9 +64,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<DisplayOrderDto> getUserOrders(UUID managerId, UUID userId) {
-        User managerUser = userRepository.findById(managerId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public List<DisplayOrderDto> getUserOrders(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<Order> orders = user.getOrders();

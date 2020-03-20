@@ -47,7 +47,7 @@ public class UserController {
 
     @GetMapping(value = "/users/{userId}/orders")
     @ResponseStatus(HttpStatus.OK)
-    public List<DisplayOrderDto> getUserOrders(@RequestHeader UUID managerId, @PathVariable UUID userId) {
-        return userService.getUserOrders(managerId, userId);
+    public List<DisplayOrderDto> getUserOrders(@PathVariable UUID userId) {
+        return userService.getUserOrders(userId);
     }
 }
