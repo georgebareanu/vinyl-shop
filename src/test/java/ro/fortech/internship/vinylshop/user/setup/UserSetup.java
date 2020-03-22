@@ -2,7 +2,7 @@ package ro.fortech.internship.vinylshop.user.setup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
+import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDto;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
@@ -103,7 +103,7 @@ public class UserSetup {
         userService.create(validateUserDto);
     }
 
-    public AuthenticationTokenDTO validLoginDto() {
+    public AuthenticationTokenDto validLoginDto() {
         User user = createAndSaveUserHelper();
         LoginUserDto dto = new LoginUserDto(user.getEmail(), user.getPassword());
         return userService.userLogin(dto);

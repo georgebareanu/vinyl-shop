@@ -1,4 +1,4 @@
-package ro.fortech.internship.vinylshop.config;
+package ro.fortech.internship.vinylshop.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

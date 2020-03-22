@@ -4,9 +4,12 @@ import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
+import ro.fortech.internship.vinylshop.role.model.Role;
+import ro.fortech.internship.vinylshop.role.model.RoleType;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.DisplayUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
@@ -15,10 +18,12 @@ import ro.fortech.internship.vinylshop.user.model.User;
 public class DtoConverter {
 
     private final PasswordValidator passwordValidator;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DtoConverter(PasswordValidator passwordValidator) {
+    public DtoConverter(PasswordValidator passwordValidator, PasswordEncoder passwordEncoder) {
         this.passwordValidator = passwordValidator;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User toUserFromCreateUserDto(CreateUserDto createUserDto) {
@@ -29,8 +34,12 @@ public class DtoConverter {
         user.setEmail(createUserDto.getEmail());
         user.setCart(new Cart());
 
+//        user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         //todo: don't forget to encode the password when security is implemented
         user.setPassword(createUserDto.getPassword());
+        Role role = new Role();
+        role.setType(RoleType.CUSTOMER);
+        user.getRoles().add(role);
         return user;
     }
 

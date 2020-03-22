@@ -3,11 +3,13 @@ package ro.fortech.internship.vinylshop.user.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.config.security.JwtTokenUtil;
 import ro.fortech.internship.vinylshop.order.converter.OrderDtoConverter;
 import ro.fortech.internship.vinylshop.order.dto.DisplayOrderDto;
 import ro.fortech.internship.vinylshop.order.model.Order;
@@ -26,11 +28,15 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final DtoConverter dtoConverter;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, DtoConverter dtoConverter) {
+    public UserService(UserRepository userRepository, DtoConverter dtoConverter, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.dtoConverter = dtoConverter;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<DisplayUserDto> getCustomers() {
@@ -73,10 +79,11 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public AuthenticationTokenDTO userLogin(LoginUserDto loginUserDTO) {
+    public AuthenticationTokenDto userLogin(LoginUserDto loginUserDTO) {
         log.info("Login requested for user {}", loginUserDTO.getEmail());
         User user = userRepository.findByEmailAndPassword(loginUserDTO.getEmail(), loginUserDTO.getPassword())
                 .orElseThrow(() -> new InvalidPasswordOrEmailException("Invalid email or password!"));
-        return new AuthenticationTokenDTO("tokenValue");
+        String token = jwtTokenUtil.generate(user);
+        return new AuthenticationTokenDto(user.getId(), token, user.getRoles().get(0));
     }
 }

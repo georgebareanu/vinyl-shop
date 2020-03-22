@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/users/login")
-    public AuthenticationTokenDTO userLogin(@RequestBody LoginUserDto loginUserDto) {
+    public AuthenticationTokenDto userLogin(@RequestBody LoginUserDto loginUserDto) {
         return userService.userLogin(loginUserDto);
     }
 
