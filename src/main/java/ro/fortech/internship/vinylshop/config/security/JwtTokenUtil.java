@@ -1,12 +1,10 @@
 package ro.fortech.internship.vinylshop.config.security;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ro.fortech.internship.vinylshop.role.model.Role;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 import java.util.Date;
@@ -25,7 +23,7 @@ public class JwtTokenUtil {
 
     public String generate(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRoles().get(0));
+        claims.put("role", user.getRole().getType());
         return generate(claims, user.getEmail());
     }
 

@@ -1,30 +1,27 @@
 package ro.fortech.internship.vinylshop.user.converter;
 
+import lombok.RequiredArgsConstructor;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.role.model.Role;
 import ro.fortech.internship.vinylshop.role.model.RoleType;
+import ro.fortech.internship.vinylshop.role.repository.RoleRepository;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.DisplayUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 @Component
+@RequiredArgsConstructor
 public class DtoConverter {
 
+    private final RoleRepository roleRepository;
     private final PasswordValidator passwordValidator;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public DtoConverter(PasswordValidator passwordValidator, PasswordEncoder passwordEncoder) {
-        this.passwordValidator = passwordValidator;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public User toUserFromCreateUserDto(CreateUserDto createUserDto) {
         validUserDto(createUserDto);
@@ -33,13 +30,9 @@ public class DtoConverter {
         user.setLastName(createUserDto.getLastName().replaceAll("\\s+", ""));
         user.setEmail(createUserDto.getEmail());
         user.setCart(new Cart());
-
-//        user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
-        //todo: don't forget to encode the password when security is implemented
-        user.setPassword(createUserDto.getPassword());
-        Role role = new Role();
-        role.setType(RoleType.CUSTOMER);
-        user.getRoles().add(role);
+        user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
+        Role role = roleRepository.findByType(RoleType.CUSTOMER);
+        user.setRole(role);
         return user;
     }
 

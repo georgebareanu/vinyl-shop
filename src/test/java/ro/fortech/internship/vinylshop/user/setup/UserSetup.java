@@ -2,6 +2,7 @@ package ro.fortech.internship.vinylshop.user.setup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDto;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
@@ -23,7 +24,8 @@ public class UserSetup {
     }
 
     public User userFromRepositoryFindByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("NotFound"));
     }
 
     public CreateUserDto createValidUserDto() {
@@ -33,7 +35,8 @@ public class UserSetup {
 
     public User createValidUser() {
         userService.create(createValidUserDto());
-        return userRepository.findByEmail("john.pierce@gmail.com");
+        return userRepository.findByEmail("john.pierce@gmail.com")
+                .orElseThrow(() -> new ResourceNotFoundException("NotFound"));
     }
 
     public void createAndSaveUser() {

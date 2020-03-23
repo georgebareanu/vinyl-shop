@@ -3,7 +3,7 @@ package ro.fortech.internship.vinylshop.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ro.fortech.internship.vinylshop.role.model.Role;
+import ro.fortech.internship.vinylshop.role.model.RoleType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,5 +19,5 @@ public class AuthenticationTokenDto {
     @NotBlank
     private String token;
     @NotNull
-    private Role role;
+    private RoleType roleType;
 }

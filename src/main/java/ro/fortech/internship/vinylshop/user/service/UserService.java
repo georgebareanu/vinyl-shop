@@ -1,9 +1,8 @@
 package ro.fortech.internship.vinylshop.user.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
@@ -24,22 +23,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final DtoConverter dtoConverter;
     private final JwtTokenUtil jwtTokenUtil;
-    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserService(UserRepository userRepository, DtoConverter dtoConverter, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.dtoConverter = dtoConverter;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public List<DisplayUserDto> getCustomers() {
+    public List<DisplayUserDto> findAll() {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .map(dtoConverter::toDisplayUserDtoFromUser)
@@ -47,18 +38,16 @@ public class UserService {
     }
 
     public void create(CreateUserDto createUserDto) {
-        User user = dtoConverter.toUserFromCreateUserDto(createUserDto);
-
-        try {
-            log.info("User created");
-            userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            log.error("Email already exist", e);
+        if (userRepository.findByEmail(createUserDto.getEmail()).isPresent()) {
             throw new InvalidException("Email already exist");
         }
+        User user = dtoConverter.toUserFromCreateUserDto(createUserDto);
+
+        log.info("User created");
+        userRepository.save(user);
     }
 
-    public void deleteUser(UUID id, DeleteUserDto deleteUserDto) {
+    public void delete(UUID id, DeleteUserDto deleteUserDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Email address or/and password are invalid"));
         if (user.getPassword().equals(deleteUserDto.getPassword()) && user.getEmail().equals(deleteUserDto.getEmail())) {
@@ -81,9 +70,14 @@ public class UserService {
 
     public AuthenticationTokenDto userLogin(LoginUserDto loginUserDTO) {
         log.info("Login requested for user {}", loginUserDTO.getEmail());
-        User user = userRepository.findByEmailAndPassword(loginUserDTO.getEmail(), loginUserDTO.getPassword())
-                .orElseThrow(() -> new InvalidPasswordOrEmailException("Invalid email or password!"));
+        User user = userRepository.findByEmail(loginUserDTO.getEmail())
+                .orElseThrow(() -> new InvalidPasswordOrEmailException("Email or Password incorrect!"));
+
+        if (!BCrypt.checkpw(loginUserDTO.getPassword(), user.getPassword())) {
+            throw new InvalidPasswordOrEmailException("Email or Password incorrect!");
+        }
+
         String token = jwtTokenUtil.generate(user);
-        return new AuthenticationTokenDto(user.getId(), token, user.getRoles().get(0));
+        return new AuthenticationTokenDto(user.getId(), token, user.getRole().getType());
     }
 }

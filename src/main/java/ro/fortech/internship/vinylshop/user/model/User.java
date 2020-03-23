@@ -30,19 +30,16 @@ public class User {
     private UUID id;
 
     @Size(min = 3, max = 25)
-    @NotNull
     @NotBlank
     private String firstName;
 
     @Size(min = 3, max = 25)
-    @NotNull
     @NotBlank
     private String lastName;
 
     @Email
-    @NotNull
     @NotBlank
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(name = "pwd", length = 500)
@@ -57,13 +54,7 @@ public class User {
     @JoinColumn(name = "user_id")
     private List<Order> orders = new ArrayList<>();
 
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> roles = new ArrayList<>();
+    @NotNull
+    @ManyToOne
+    private Role role;
 }
