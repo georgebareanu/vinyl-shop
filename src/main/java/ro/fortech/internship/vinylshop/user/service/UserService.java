@@ -2,6 +2,11 @@ package ro.fortech.internship.vinylshop.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +22,8 @@ import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final DtoConverter dtoConverter;
@@ -79,5 +86,16 @@ public class UserService {
 
         String token = jwtTokenUtil.generate(user);
         return new AuthenticationTokenDto(user.getId(), token, user.getRole().getType());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(), getRoles(user));
+    }
+
+    private Collection<? extends GrantedAuthority> getRoles(User user) {
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getType().toString()));
     }
 }

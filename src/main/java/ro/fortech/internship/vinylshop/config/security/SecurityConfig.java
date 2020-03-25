@@ -21,16 +21,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .disable()
                 .authorizeRequests()
-                .antMatchers("/api/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/vinyls").permitAll()
                 .antMatchers("/api/users/login").permitAll()
                 .antMatchers("/api/users/cart").authenticated()
                 .antMatchers("/api/users/orders").authenticated()
                 .antMatchers("/api/users/{id}").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/vinyls").hasRole("MANAGER")
-                .antMatchers("/api/vinyls/{id}").hasRole("MANAGER")
-                .antMatchers("/api/customers").hasRole("MANAGER")
-                .antMatchers("/api/users/{userId}/orders").hasRole("MANAGER");
+                .antMatchers(HttpMethod.POST, "/api/vinyls").hasAuthority("MANAGER")
+                .antMatchers("/api/vinyls/{id}").hasAuthority("MANAGER")
+                .antMatchers("/api/users").hasAuthority("MANAGER")
+                .antMatchers("/api/users/{userId}/orders").hasAuthority("MANAGER");
     }
 
     @Bean
