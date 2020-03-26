@@ -3,6 +3,7 @@ package ro.fortech.internship.vinylshop.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -75,8 +76,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
     private boolean isUnsecuredRequest(HttpServletRequest request) {
         AntPathMatcher matcher = new AntPathMatcher();
         return matcher.match("/api/users/login", request.getRequestURI())
-                || matcher.match("/api/vinyls", request.getRequestURI())
-                || matcher.match("/api/users", request.getRequestURI())
+                || matcher.match("/api/vinyls", request.getRequestURI()) && request.getMethod().equals(HttpMethod.GET.name())
                 || matcher.match("/v2/api-docs", request.getRequestURI())
                 || matcher.match("/swagger-resources/**", request.getRequestURI())
                 || matcher.match("/webjars/**", request.getRequestURI())

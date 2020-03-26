@@ -1,7 +1,7 @@
 package ro.fortech.internship.vinylshop.cart.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.cart.converter.CartDtoConverter;
 import ro.fortech.internship.vinylshop.cart.dto.CartDisplayDto;
@@ -16,33 +16,25 @@ import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
+import ro.fortech.internship.vinylshop.user.service.AuthenticatedUser;
 
 import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CartService {
 
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final CartItemRepository cartItemRepository;
+    private final AuthenticatedUser authenticatedUser;
 
-    @Autowired
-    public CartService(CartRepository cartRepository, UserRepository userRepository,
-                       ItemRepository itemRepository, CartItemRepository cartItemRepository) {
-        this.cartRepository = cartRepository;
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-        this.cartItemRepository = cartItemRepository;
-    }
-
-    public CartDisplayDto getItems(UUID userId) {
-        log.info("User {} requests to see carts details", userId);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public CartDisplayDto getItems() {
+        User user = authenticatedUser.getAuthenticatedUser();
+        log.info("User {} requests to see carts details", user.getEmail());
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 

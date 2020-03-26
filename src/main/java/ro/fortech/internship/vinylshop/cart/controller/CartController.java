@@ -23,8 +23,8 @@ public class CartController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public CartDisplayDto getItems(@RequestHeader UUID userId) {
-        return cartService.getItems(userId);
+    public CartDisplayDto getItems() {
+        return cartService.getItems();
     }
 
     @PostMapping
