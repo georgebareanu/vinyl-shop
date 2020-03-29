@@ -90,13 +90,12 @@ public class UserControllerTest extends BaseTest {
     @Test
     public void userShouldLoginTest() {
         User user = userSetup.createValidUser();
-        LoginUserDto loginUserDto = new LoginUserDto(user.getEmail(), user.getPassword());
+        LoginUserDto loginUserDto = new LoginUserDto(user.getEmail(), "SecretPass1583!`");
 
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/login"),
                 HttpMethod.POST, new HttpEntity<>(loginUserDto), String.class);
 
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertEquals("{\"token\":\"tokenValue\"}", response.getBody());
     }
 
     @Test

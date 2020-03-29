@@ -31,8 +31,8 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id, @Valid @RequestBody DeleteUserDto deleteUserDto) {
-        userService.delete(id, deleteUserDto);
+    public void delete(@Valid @RequestBody DeleteUserDto deleteUserDto) {
+        userService.delete(deleteUserDto);
     }
 
     @GetMapping

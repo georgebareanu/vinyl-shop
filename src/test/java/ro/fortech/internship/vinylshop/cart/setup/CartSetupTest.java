@@ -61,13 +61,13 @@ public class CartSetupTest {
         return item.getId();
     }
 
-    public void addToCartWithVariableQuantity(UUID userId, int quantity) {
+    public void addToCartWithVariableQuantity(int quantity) {
         UUID itemId = createItem();
         CartItemAddToCardDto addCartItemDto = new CartItemAddToCardDto(itemId, quantity);
-        cartService.addItem(userId, addCartItemDto);
+        cartService.addItem(addCartItemDto);
     }
 
-    public void removeCartItemFromCart(UUID userId, UUID cartItemId) {
-        cartService.removeItem(userId, cartItemId);
+    public void removeCartItemFromCart(UUID cartItemId) {
+        cartService.removeItem(cartItemId);
     }
 }

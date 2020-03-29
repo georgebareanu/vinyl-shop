@@ -35,6 +35,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final DtoConverter dtoConverter;
+    private final AuthenticatedUser authenticatedUser;
     private final JwtTokenUtil jwtTokenUtil;
 
     public List<DisplayUserDto> findAll() {
@@ -54,9 +55,8 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void delete(UUID id, DeleteUserDto deleteUserDto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Email address or/and password are invalid"));
+    public void delete(DeleteUserDto deleteUserDto) {
+        User user = authenticatedUser.getAuthenticatedUser();
         if (user.getPassword().equals(deleteUserDto.getPassword()) && user.getEmail().equals(deleteUserDto.getEmail())) {
             userRepository.delete(user);
             log.info("User with UUID {} deleted!", user.getId());

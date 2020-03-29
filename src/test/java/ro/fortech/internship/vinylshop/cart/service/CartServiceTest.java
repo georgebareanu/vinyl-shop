@@ -47,19 +47,18 @@ public class CartServiceTest extends BaseTest {
         assertFalse(user.getCart().getItemsInCart().isEmpty());
     }
 
-
     @Test
     public void addToCartWithNotEnoughStockTest() {
         expectedException.expect(InvalidQuantityException.class);
         User user = userSetup.createValidUser();
-        cartSetupTest.addToCartWithVariableQuantity(user.getId(), 15);
+        cartSetupTest.addToCartWithVariableQuantity(15);
     }
 
     @Test
     public void removeFromCartTest() {
         User user = userSetup.createValidUser();
         UUID cartItemId = cartSetupTest.addItemsInCart(user);
-        cartSetupTest.removeCartItemFromCart(user.getId(), cartItemId);
+        cartSetupTest.removeCartItemFromCart(cartItemId);
         user = userRepository.findById(user.getId()).orElse(null);
         assertTrue(user.getCart().getItemsInCart().isEmpty());
     }
@@ -69,10 +68,8 @@ public class CartServiceTest extends BaseTest {
         expectedException.expect(ResourceNotFoundException.class);
         User user = userSetup.createValidUser();
         UUID cartItemId = UUID.randomUUID();
-        cartSetupTest.removeCartItemFromCart(user.getId(), cartItemId);
+        cartSetupTest.removeCartItemFromCart(cartItemId);
         user = userRepository.findById(user.getId()).orElse(null);
         assertTrue(user.getCart().getItemsInCart().isEmpty());
     }
-
-
 }

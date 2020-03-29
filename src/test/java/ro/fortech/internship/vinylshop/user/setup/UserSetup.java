@@ -2,7 +2,11 @@ package ro.fortech.internship.vinylshop.user.setup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.role.model.Role;
+import ro.fortech.internship.vinylshop.role.model.RoleType;
+import ro.fortech.internship.vinylshop.role.repository.RoleRepository;
 import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDto;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
@@ -18,6 +22,9 @@ public class UserSetup {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public void deleteUsersDatabase() {
         userRepository.deleteAll();
@@ -163,10 +170,11 @@ public class UserSetup {
         userService.userLogin(dto);
     }
 
-
     private User createAndSaveUserHelper() {
+        Role role = Role.builder().type(RoleType.CUSTOMER).build();
+        roleRepository.save(role);
         User user = User.builder().email("john.pierce@gmail.com")
-                .firstName("John").lastName("Pierce").password("SecretPass1583!`").build();
+                .firstName("John").lastName("Pierce").password("SecretPass1583!`").cart(new Cart()).role(role).build();
         userRepository.save(user);
         return user;
     }

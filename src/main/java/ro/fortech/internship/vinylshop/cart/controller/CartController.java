@@ -29,14 +29,13 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addItem(@RequestHeader UUID userId, @RequestBody @Valid CartItemAddToCardDto cartItemDto) {
-        cartService.addItem(userId, cartItemDto);
+    public void addItem(@RequestBody @Valid CartItemAddToCardDto cartItemDto) {
+        cartService.addItem(cartItemDto);
     }
 
     @DeleteMapping(value = "/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void remove(@RequestHeader UUID userId, @PathVariable UUID itemId) {
-        cartService.removeItem(userId, itemId);
+    public void remove(@PathVariable UUID itemId) {
+        cartService.removeItem(itemId);
     }
-
 }
