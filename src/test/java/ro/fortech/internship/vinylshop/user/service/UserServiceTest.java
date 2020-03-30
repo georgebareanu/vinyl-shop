@@ -161,18 +161,19 @@ public class UserServiceTest extends BaseTest {
 
     @Test
     public void getCustomersEmptyListTest() {
-        assertTrue(userService.getCustomers().isEmpty());
+        assertTrue(userService.findAll().isEmpty());
     }
 
     @Test
     public void getCustomersNotEmptyTest() {
         userSetup.createAndSaveUser();
-        assertFalse(userService.getCustomers().isEmpty());
+        assertFalse(userService.findAll().isEmpty());
     }
 
     @Test
     public void getCustomerOrdersTest() {
         User user = userSetup.createValidUser();
+        User managerUser = userSetup.createValidUser();
         assertTrue(userService.getUserOrders(user.getId()).isEmpty());
     }
 }

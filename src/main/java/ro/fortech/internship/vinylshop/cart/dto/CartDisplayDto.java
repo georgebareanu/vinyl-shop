@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @JsonSerialize
 public class CartDisplayDto {
-
     private Integer numberOfItems;
     private Double totalCost;
     private List<CartItemDisplayDto> cartItems;

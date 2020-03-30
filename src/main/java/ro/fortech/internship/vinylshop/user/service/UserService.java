@@ -1,13 +1,19 @@
 package ro.fortech.internship.vinylshop.user.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidPasswordOrEmailException;
 import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.config.security.JwtTokenUtil;
 import ro.fortech.internship.vinylshop.order.converter.OrderDtoConverter;
 import ro.fortech.internship.vinylshop.order.dto.DisplayOrderDto;
 import ro.fortech.internship.vinylshop.order.model.Order;
@@ -16,24 +22,23 @@ import ro.fortech.internship.vinylshop.user.dto.*;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserService {
+@RequiredArgsConstructor
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final DtoConverter dtoConverter;
+    private final AuthenticatedUser authenticatedUser;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    public UserService(UserRepository userRepository, DtoConverter dtoConverter) {
-        this.userRepository = userRepository;
-        this.dtoConverter = dtoConverter;
-    }
-
-    public List<DisplayUserDto> getCustomers() {
+    public List<DisplayUserDto> findAll() {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .map(dtoConverter::toDisplayUserDtoFromUser)
@@ -41,20 +46,17 @@ public class UserService {
     }
 
     public void create(CreateUserDto createUserDto) {
-        User user = dtoConverter.toUserFromCreateUserDto(createUserDto);
-
-        try {
-            log.info("User created");
-            userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            log.error("Email already exist", e);
+        if (userRepository.findByEmail(createUserDto.getEmail()).isPresent()) {
             throw new InvalidException("Email already exist");
         }
+        User user = dtoConverter.toUserFromCreateUserDto(createUserDto);
+
+        log.info("User created");
+        userRepository.save(user);
     }
 
-    public void deleteUser(UUID id, DeleteUserDto deleteUserDto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Email address or/and password are invalid"));
+    public void delete(DeleteUserDto deleteUserDto) {
+        User user = authenticatedUser.getAuthenticatedUser();
         if (user.getPassword().equals(deleteUserDto.getPassword()) && user.getEmail().equals(deleteUserDto.getEmail())) {
             userRepository.delete(user);
             log.info("User with UUID {} deleted!", user.getId());
@@ -73,10 +75,27 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public AuthenticationTokenDTO userLogin(LoginUserDto loginUserDTO) {
+    public AuthenticationTokenDto userLogin(LoginUserDto loginUserDTO) {
         log.info("Login requested for user {}", loginUserDTO.getEmail());
-        User user = userRepository.findByEmailAndPassword(loginUserDTO.getEmail(), loginUserDTO.getPassword())
-                .orElseThrow(() -> new InvalidPasswordOrEmailException("Invalid email or password!"));
-        return new AuthenticationTokenDTO("tokenValue");
+        User user = userRepository.findByEmail(loginUserDTO.getEmail())
+                .orElseThrow(() -> new InvalidPasswordOrEmailException("Email or Password incorrect!"));
+
+        if (!BCrypt.checkpw(loginUserDTO.getPassword(), user.getPassword())) {
+            throw new InvalidPasswordOrEmailException("Email or Password incorrect!");
+        }
+
+        String token = jwtTokenUtil.generate(user);
+        return new AuthenticationTokenDto(user.getId(), token, user.getRole().getType());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(), getRoles(user));
+    }
+
+    private Collection<? extends GrantedAuthority> getRoles(User user) {
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getType().toString()));
     }
 }

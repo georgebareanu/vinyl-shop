@@ -1,7 +1,7 @@
 package ro.fortech.internship.vinylshop.cart.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.cart.converter.CartDtoConverter;
 import ro.fortech.internship.vinylshop.cart.dto.CartDisplayDto;
@@ -16,42 +16,32 @@ import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
+import ro.fortech.internship.vinylshop.user.service.AuthenticatedUser;
 
 import javax.transaction.Transactional;
 import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final CartItemRepository cartItemRepository;
+    private final AuthenticatedUser authenticatedUser;
 
-    @Autowired
-    public CartService(CartRepository cartRepository, UserRepository userRepository,
-                       ItemRepository itemRepository, CartItemRepository cartItemRepository) {
-        this.cartRepository = cartRepository;
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-        this.cartItemRepository = cartItemRepository;
-    }
-
-    public CartDisplayDto getItems(UUID userId) {
-        log.info("User {} requests to see carts details", userId);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public CartDisplayDto getItems() {
+        User user = authenticatedUser.getAuthenticatedUser();
+        log.info("User {} requests to see carts details", user.getEmail());
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
         return CartDtoConverter.toCartDisplayDtoFromCart(cart);
     }
 
-    public void addItem(UUID userId, CartItemAddToCardDto cartItemAddToCardDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public void addItem(CartItemAddToCardDto cartItemAddToCardDto) {
+        User user = authenticatedUser.getAuthenticatedUser();
         Item item = itemRepository.findById(cartItemAddToCardDto.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("The requested item does not exist!"));
 
@@ -65,7 +55,22 @@ public class CartService {
         } else {
             addItemToCartIfCartItemAlreadyExist(user, cartItemAddToCardDto, item, cartItemInCart);
         }
-        log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), userId);
+        log.info("Item {} was successfully inserted into the cart for user with id {}", item.getName(), user.getId());
+    }
+
+    @Transactional
+    public void removeItem(UUID cartItemId) {
+        User user = authenticatedUser.getAuthenticatedUser();
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+
+        cart.setTotalCost(cart.getTotalCost() - cartItem.getItem().getPrice());
+        cart.setNumberOfItems(cart.getNumberOfItems() - cartItem.getQuantity());
+        cart.getItemsInCart().remove(cartItem);
+        cartRepository.save(cart);
+        cartItemRepository.delete(cartItem);
     }
 
     private void addItemToCartIfCartItemAlreadyExist(User user, CartItemAddToCardDto cartItemAddToCardDto,
@@ -115,21 +120,4 @@ public class CartService {
                 .mapToDouble(c -> c.getItem().getPrice() * c.getQuantity())
                 .sum();
     }
-
-    @Transactional
-    public void removeItem(UUID userId, UUID cartItemId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Cart cart = cartRepository.findById(user.getCart().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
-
-        cart.setTotalCost(cart.getTotalCost() - cartItem.getItem().getPrice());
-        cart.setNumberOfItems(cart.getNumberOfItems() - cartItem.getQuantity());
-        cart.getItemsInCart().remove(cartItem);
-        cartRepository.save(cart);
-        cartItemRepository.delete(cartItem);
-    }
-
 }

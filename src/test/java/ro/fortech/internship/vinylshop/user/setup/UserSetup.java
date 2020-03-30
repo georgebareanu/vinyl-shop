@@ -2,7 +2,12 @@ package ro.fortech.internship.vinylshop.user.setup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDTO;
+import ro.fortech.internship.vinylshop.cart.model.Cart;
+import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
+import ro.fortech.internship.vinylshop.role.model.Role;
+import ro.fortech.internship.vinylshop.role.model.RoleType;
+import ro.fortech.internship.vinylshop.role.repository.RoleRepository;
+import ro.fortech.internship.vinylshop.user.dto.AuthenticationTokenDto;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.dto.LoginUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
@@ -18,12 +23,16 @@ public class UserSetup {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     public void deleteUsersDatabase() {
         userRepository.deleteAll();
     }
 
     public User userFromRepositoryFindByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("NotFound"));
     }
 
     public CreateUserDto createValidUserDto() {
@@ -33,7 +42,8 @@ public class UserSetup {
 
     public User createValidUser() {
         userService.create(createValidUserDto());
-        return userRepository.findByEmail("john.pierce@gmail.com");
+        return userRepository.findByEmail("john.pierce@gmail.com")
+                .orElseThrow(() -> new ResourceNotFoundException("NotFound"));
     }
 
     public void createAndSaveUser() {
@@ -103,7 +113,7 @@ public class UserSetup {
         userService.create(validateUserDto);
     }
 
-    public AuthenticationTokenDTO validLoginDto() {
+    public AuthenticationTokenDto validLoginDto() {
         User user = createAndSaveUserHelper();
         LoginUserDto dto = new LoginUserDto(user.getEmail(), user.getPassword());
         return userService.userLogin(dto);
@@ -160,10 +170,11 @@ public class UserSetup {
         userService.userLogin(dto);
     }
 
-
     private User createAndSaveUserHelper() {
+        Role role = Role.builder().type(RoleType.CUSTOMER).build();
+        roleRepository.save(role);
         User user = User.builder().email("john.pierce@gmail.com")
-                .firstName("John").lastName("Pierce").password("SecretPass1583!`").build();
+                .firstName("John").lastName("Pierce").password("SecretPass1583!`").cart(new Cart()).role(role).build();
         userRepository.save(user);
         return user;
     }

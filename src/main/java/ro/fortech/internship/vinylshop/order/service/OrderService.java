@@ -1,51 +1,44 @@
 package ro.fortech.internship.vinylshop.order.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ro.fortech.internship.vinylshop.cart.model.Cart;
 import ro.fortech.internship.vinylshop.cartitem.model.CartItem;
 import ro.fortech.internship.vinylshop.common.exception.InvalidException;
 import ro.fortech.internship.vinylshop.common.exception.InvalidQuantityException;
-import ro.fortech.internship.vinylshop.common.exception.ResourceNotFoundException;
 import ro.fortech.internship.vinylshop.item.model.Item;
 import ro.fortech.internship.vinylshop.item.repository.ItemRepository;
 import ro.fortech.internship.vinylshop.order.model.Order;
 import ro.fortech.internship.vinylshop.order.model.OrderStatus;
 import ro.fortech.internship.vinylshop.user.model.User;
 import ro.fortech.internship.vinylshop.user.repository.UserRepository;
+import ro.fortech.internship.vinylshop.user.service.AuthenticatedUser;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class OrderService {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final AuthenticatedUser authenticatedUser;
 
-    @Autowired
-    public OrderService(UserRepository userRepository, ItemRepository itemRepository) {
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-    }
-
-    public List<Order> getOrders(UUID userId) {
-        log.info("User {} requests to see own orders", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public List<Order> getOrders() {
+        User user = authenticatedUser.getAuthenticatedUser();
+        log.info("User {} requests to see own orders", user.getId());
         return user.getOrders();
     }
 
     @Transactional
-    public void create(UUID userId) {
-        log.info("User {} requests to place an order", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public void create() {
+        User user = authenticatedUser.getAuthenticatedUser();
+        log.info("User {} requests to place an order", user.getId());
         Cart cart = user.getCart();
 
         if (isCartEmpty(user)) {

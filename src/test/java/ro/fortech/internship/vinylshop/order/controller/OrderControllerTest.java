@@ -54,7 +54,7 @@ public class OrderControllerTest extends BaseTest {
     public void placeOrderWithOneItemInCartTest() {
         User user = userSetup.createValidUser();
         itemSetup.createValidItemAndSave();
-        cartSetupTest.addToCartWithVariableQuantity(user.getId(), 1);
+        cartSetupTest.addToCartWithVariableQuantity(1);
         HttpHeaders headers = new HttpHeaders();
         headers.add("userId", user.getId().toString());
         ResponseEntity<String> response = restTemplate.exchange(createUrl("api/users/orders"),
