@@ -8,6 +8,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ro.fortech.internship.vinylshop.config.security.JwtTokenUtil;
 import ro.fortech.internship.vinylshop.role.model.Role;
 import ro.fortech.internship.vinylshop.role.model.RoleType;
 import ro.fortech.internship.vinylshop.role.repository.RoleRepository;
@@ -30,16 +31,24 @@ public class BaseControllerForTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
     protected final TestRestTemplate restTemplate = new TestRestTemplate();
 
     @AfterEach
-    public void tearDown() {
+    protected void tearDown() {
         userRepository.deleteAll();
     }
 
-    public void saveUserInDb(User user) {
+    protected String getValidToken(User user, RoleType roleType) {
+        saveUserInDb(user, roleType);
+        return jwtTokenUtil.generate(user);
+    }
+
+    protected void saveUserInDb(User user, RoleType roleType) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role roleCustomer = roleRepository.findByType(RoleType.CUSTOMER);
+        Role roleCustomer = roleRepository.findByType(roleType);
         user.setRole(roleCustomer);
         userRepository.save(user);
     }

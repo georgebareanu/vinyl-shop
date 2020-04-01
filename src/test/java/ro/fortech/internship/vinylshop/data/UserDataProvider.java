@@ -1,13 +1,12 @@
 package ro.fortech.internship.vinylshop.data;
 
 import ro.fortech.internship.vinylshop.cart.model.Cart;
-import ro.fortech.internship.vinylshop.role.model.RoleType;
 import ro.fortech.internship.vinylshop.user.dto.CreateUserDto;
 import ro.fortech.internship.vinylshop.user.model.User;
 
 public class UserDataProvider {
 
-    public static User createValidUser(RoleType roleType) {
+    public static User createValidUser() {
         return User.builder()
                 .email("John@vinyl")
                 .firstName("John")

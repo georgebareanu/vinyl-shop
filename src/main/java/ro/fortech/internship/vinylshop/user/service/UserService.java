@@ -57,7 +57,8 @@ public class UserService implements UserDetailsService {
 
     public void delete(DeleteUserDto deleteUserDto) {
         User user = authenticatedUser.getAuthenticatedUser();
-        if (user.getPassword().equals(deleteUserDto.getPassword()) && user.getEmail().equals(deleteUserDto.getEmail())) {
+
+        if (user.getEmail().equals(deleteUserDto.getEmail()) && BCrypt.checkpw(deleteUserDto.getPassword(), user.getPassword())) {
             userRepository.delete(user);
             log.info("User with UUID {} deleted!", user.getId());
         } else {
